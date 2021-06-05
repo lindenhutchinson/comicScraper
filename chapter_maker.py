@@ -1,8 +1,8 @@
 import requests
 from PIL import Image
 from io import BytesIO
-from utils import clear, get_page_soup
-
+from utils import get_page_soup, print_progress
+from datetime import datetime
 
 class ChapterMaker():
     '''
@@ -56,7 +56,7 @@ class ChapterMaker():
         images = []
         ctr = 0
         dot_string = '.'
-
+        start_time = datetime.now()
         for url in img_urls:
             img_resp = self.stream_image(url)
             if img_resp:
@@ -65,7 +65,7 @@ class ChapterMaker():
                     images.append(img)
 
                     ctr += 1
-                    self.print_progress(ctr, len(img_urls))
+                    print_progress(self.chap_name, start_time, ctr, len(img_urls))
                 except IOError as e:
                     print(e)
         return images
@@ -83,15 +83,12 @@ class ChapterMaker():
             print(f"Didn't find any images for {self.chap_name}")
         del images
 
-    def print_progress(self, current, total):
-        percentage = round(100*(current/total), 1)
-        clear()
-        print(f"Currently downlading {self.chap_name}\n\t{percentage}%")
+    
 
 
 
 # for debugging purposes
 if __name__ == "__main__":
-    url = 'https://wallcomic.com/comic/doomsday-clock/chapter-12/159078'
+    url = 'https://wallcomic.com/comic/doomsday-clock/chapter-12/159078/all'
     cm = ChapterMaker("doomsday clock", url)
-    cm.create_pdf('test.pdf')
+    cm.create_pdf('test/doomsday_clock.pdf', )

@@ -31,7 +31,7 @@ class ChapterController():
     def get_user_input(self):
         go = True
         while go:
-            search = input("Search for a comic:\n")
+            search = input("Search for a comic: ")
             options, results = self.search_comics(search)
             if len(options):
                 print(f"Here are the results for your search:", end="\n\n")
@@ -39,13 +39,26 @@ class ChapterController():
             else:
                 print("Sorry, I didn't find any results for that search")
                 go = False
+                continue
+            continue_downloading = -1
+            while(not(0<=continue_downloading<= 1)):
+                try:
+                    continue_downloading = int(
+                        input("0: Search for a different comic\n1: Download a comic from the list\n:"))
+                    if not (0 <= continue_downloading <= 1):
+                        print("Sorry, I couldn't understand that input, try entering a 0 or a 1")
+                        continue_downloading = -1
+                        continue
+                except ValueError:
+                    print("You need to enter a number!")
+                    continue
 
-            if input("0: Search for a different comic\n1: Download a comic from the list\n"):
+            if continue_downloading:
                 try:
                     comic_num = int(
-                        input("Enter the number for the comic you would like to download:\n"))
+                        input("Enter the number for the comic you would like to download: "))
                 except ValueError:
-                    print("You need to enter a number!!!")
+                    print("You need to enter a number!")
                     go = False
                     continue
                 try:

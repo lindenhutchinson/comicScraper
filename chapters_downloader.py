@@ -30,7 +30,7 @@ class ChaptersDownloader():
             if href not in chap_urls:
                 chap_name = chap.get_text()
                 # add /all to this when you want to stop debugging!!!!!
-                chap_urls.update({chap_name: href})
+                chap_urls.update({chap_name: href+'/all'})
 
         return chap_urls
 
