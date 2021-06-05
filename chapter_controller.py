@@ -1,7 +1,7 @@
 from chapter_searcher import ChapterSearcher
 from chapters_downloader import ChaptersDownloader
-import os 
-from utils import get_absolute_path_to, fix_directory_string
+import os
+from utils import get_absolute_path_to
 
 
 class ChapterController():
@@ -14,22 +14,19 @@ class ChapterController():
         options = [f"{i}: {c['title']}" for i, c in enumerate(results)]
         return (options, results)
 
-    def ensure_comic_directory(self, comic_name):
-
-        safe_name = fix_directory_string(comic_name)
-        dir = f"{self.save_dir}/{safe_name}"
-        try:
-            os.mkdir(dir)
-            print(f"created directory: {dir}")
-        except OSError as e:
-            # print(e)
-            print(f"{dir} already exists, no need to create it")
-
-        return dir 
-
-    def download_comic(self, comic):
+    def get_chapters(self, comic):
         cd = ChaptersDownloader(comic['url'], comic['title'])
-        cd.run()
+        chap_urls = cd.get_chapter_urls()
+        options = [f"{i}: {c['title']}" for i, c in enumerate(chap_urls)]
+        return (options, chap_urls)
+
+    def download_all_issues(self, comic):
+        cd = ChaptersDownloader(comic['url'], comic['title'])
+        cd.download_all(self.save_dir)
+
+    def download_some_issues(self, chap_urls):
+        cd = ChaptersDownloader(comic['url'], comic['title'])
+        cd.download_some(self.save_dir, chap_urls)
 
     def get_user_input(self):
         go = True
@@ -45,31 +42,29 @@ class ChapterController():
 
             if input("0: Search for a different comic\n1: Download a comic from the list\n"):
                 try:
-                    comic_num = int(input("Enter the number for the comic you would like to download:\n"))
+                    comic_num = int(
+                        input("Enter the number for the comic you would like to download:\n"))
                 except ValueError:
                     print("You need to enter a number!!!")
                     go = False
                     continue
+                try:
+                    comic = results[comic_num]
+                except IndexError:
+                    print("Couldn't find a comic with that ID")
+                    go = False
+                    continue
 
-                comic = results[comic_num]
-                dir = self.ensure_comic_directory(comic['title'])
-                cd = ChaptersDownloader(comic['url'], dir)
-                cd.run()
-
+                self.download_all_issues(comic)
 
             go = False
 
         self.get_user_input()
 
 
-
-        
-
-
 if __name__ == "__main__":
-    base_url='https://wallcomic.com/comic/'
-    search_url='https://wallcomic.com/ajax/search'
-    save_dir = "comics\\"
-    cc = ChapterController(save_dir,base_url, search_url)
+    base_url = 'https://wallcomic.com/comic/'
+    search_url = 'https://wallcomic.com/ajax/search'
+    save_dir = "comics"
+    cc = ChapterController(save_dir, base_url, search_url)
     cc.get_user_input()
- 

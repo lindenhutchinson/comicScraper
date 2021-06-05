@@ -1,5 +1,5 @@
 from chapter_maker import ChapterMaker
-from utils import clear, get_page_soup, fix_directory_string
+from utils import clear, get_page_soup, fix_directory_string, ensure_directory_exists
 
 
 class ChaptersDownloader():
@@ -10,17 +10,16 @@ class ChaptersDownloader():
 
     '''
 
-    def __init__(self, url, dir):
+    def __init__(self, url, title):
         self.url = url
-        self.dir = dir
+        self.title = title
 
     def get_chapter_urls(self):
         '''
-        fetches a list of chapter urls that can iterated over to download all chapters
+        fetches a dictionary of chapter_title:chapter_url
 
         returns:
-            list<str>: list of chapter urls
-
+            dict<chap_name:url>: A dictionary that uses the chapter name as the key, and the issue url as the value
         '''
         soup = get_page_soup(self.url)
         div = soup.find(class_="episode-list")
@@ -29,20 +28,28 @@ class ChaptersDownloader():
         for chap in div.find_all("a"):
             href = chap['href']
             if href not in chap_urls:
-                title = chap.get_text()
-                chap_urls.update({title: f"{href}"}) # add /all to this when you want to stop debugging!!!!!
+                chap_name = chap.get_text()
+                # add /all to this when you want to stop debugging!!!!!
+                chap_urls.update({chap_name: href})
 
         return chap_urls
 
-    def run(self):
-        chap_urls = self.get_chapter_urls()
-        for title, url in chap_urls.items():
-            cm = ChapterMaker(title, url)
-            path = fix_directory_string(f"{self.dir}\\{title}")
+    def download_all(self, directory):
+        """
+        For downloading all chapters that have been found
+        """     
+        self.download_some(directory, self.get_chapter_urls())
+
+    def download_some(self, directory, chap_urls):
+        dir = ensure_directory_exists(directory, self.title)
+        for chap_name, url in chap_urls.items():
+            cm = ChapterMaker(chap_name, url)
+            chap_name = fix_directory_string(chap_name)
+            path = f"{dir}\\{chap_name}"
             cm.create_pdf(f"{path}.pdf")
 
 
 if __name__ == "__main__":
-    cd = ChaptersDownloader('https://wallcomic.com/comic/doomsday-clock', './comics/')
+    cd = ChaptersDownloader(
+        'https://wallcomic.com/comic/doomsday-clock', './comics/')
     cd.run()
-

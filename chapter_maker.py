@@ -7,12 +7,12 @@ from utils import clear, get_page_soup
 class ChapterMaker():
     '''
     params:
-        title<str>: the name of a page which contains the desired images
-        url<str>: url of a page which contains the desired images
+        chap_name<str>: the name of chapter that is being downloaded
+        url<str>: url of the chapter page that should be downloaded
     '''
 
-    def __init__(self, title, url):
-        self.title = title
+    def __init__(self, chap_name, url):
+        self.chap_name = chap_name
         self.url = url
 
     def get_image_urls(self):
@@ -66,7 +66,7 @@ class ChapterMaker():
 
                     ctr += 1
                     self.print_progress(ctr, len(img_urls))
-                except Exception as e:
+                except IOError as e:
                     print(e)
         return images
 
@@ -77,16 +77,16 @@ class ChapterMaker():
         '''
         images = self.get_images()
         if len(images):
-            images[0].save(dir[1:], "PDF", resolution=100.0,
+            images[0].save(dir, "PDF", resolution=100.0,
                         save_all=True, append_images=images[1:])
         else:
-            print(f"Didn't find any images for {self.title}")
+            print(f"Didn't find any images for {self.chap_name}")
         del images
 
     def print_progress(self, current, total):
         percentage = round(100*(current/total), 1)
         clear()
-        print(f"Currently downlading {self.title}\n\t{percentage}%")
+        print(f"Currently downlading {self.chap_name}\n\t{percentage}%")
 
 
 
