@@ -1,7 +1,7 @@
 from chapter_searcher import ChapterSearcher
 from chapters_downloader import ChaptersDownloader
 import os
-from utils import get_absolute_path_to
+from utils import get_absolute_path_to, ensure_directory_exists
 
 
 class ChapterController():
@@ -79,5 +79,6 @@ if __name__ == "__main__":
     base_url = 'https://wallcomic.com/comic/'
     search_url = 'https://wallcomic.com/ajax/search'
     save_dir = "comics"
+    ensure_directory_exists('.', 'comics')
     cc = ChapterController(save_dir, base_url, search_url)
     cc.get_user_input()

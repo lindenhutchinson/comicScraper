@@ -11,6 +11,9 @@ def get_page_soup(page_url):
     resp = requests.get(page_url)
     return BeautifulSoup(str(resp.content), "lxml")
 
+def get_sorted_arr_from_dict(data):
+    return [val for (key, val) in sorted(data.items())]
+
 
 def get_absolute_path_to(path):
     return os.path.join(os.getcwd(), path)
@@ -49,7 +52,8 @@ def ensure_directory_exists(base_dir, new_folder):
 
 def estimate_time_remaining(start_time, current, total):
     elapsed = datetime.now() - start_time
-    seconds_per_download = elapsed.seconds / current
+    
+    seconds_per_download = elapsed.microseconds / current
     est_seconds_remaining = (total-current) * seconds_per_download
     if est_seconds_remaining >= 60:
         est_minutes_remaining = est_seconds_remaining / 60
@@ -62,11 +66,11 @@ def estimate_time_remaining(start_time, current, total):
     return (download_speed, estimated_remaining)
 
 
-def print_progress(chap_name, start_time, current, total):
+def print_progress(start_time, current, total):
     percentage = round(100*(current/total), 1)
     download_speed, estimated_remaining = estimate_time_remaining(
         start_time, current, total)
     clear()
-    print(f"Currently downlading {chap_name} - {percentage}%", end="\n")
+    print(f"Currently downlading images - {percentage}%", end="\n")
     print(download_speed, end="\n")
     print(estimated_remaining, end="\n")

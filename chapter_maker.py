@@ -1,8 +1,9 @@
-import requests
 from PIL import Image
 from io import BytesIO
-from utils import get_page_soup, print_progress
+from utils import get_page_soup, clear, get_sorted_arr_from_dict
 from datetime import datetime
+from request_getter import RequestGetter
+
 
 class ChapterMaker():
     '''
@@ -26,25 +27,12 @@ class ChapterMaker():
         div = soup.find(class_="chapter-container")
 
         img_urls = []
-        
+
         for img in div.find_all('img'):
             img_url = img['data-src']
             if img_url:
                 img_urls.append(img_url)
         return img_urls
-
-    def stream_image(self, url):
-        '''
-        params:
-            url<str>: an image url
-
-        returns:
-            response<obj>: a request object holding the loaded image
-        '''
-        try:
-            return requests.get(url, stream=True)
-        except:
-            print(f"Couldn't stream {url}")
 
     def get_images(self):
         '''
@@ -52,22 +40,21 @@ class ChapterMaker():
             List<Image>: A list of PIL Image objects
         '''
         img_urls = self.get_image_urls()
+        clear()
+        print(f"Getting pages for {self.chap_name}")
+        img_responses = RequestGetter.runner(img_urls)
+        img_responses = get_sorted_arr_from_dict(img_responses)
 
         images = []
-        ctr = 0
-        dot_string = '.'
-        start_time = datetime.now()
-        for url in img_urls:
-            img_resp = self.stream_image(url)
-            if img_resp:
-                try:
-                    img = Image.open(BytesIO(img_resp.content)).convert('RGB')
-                    images.append(img)
+        for img_resp in img_responses:
+            try:
+                img = Image.open(BytesIO(img_resp)).convert('RGB')
+                images.append(img)
 
-                    ctr += 1
-                    print_progress(self.chap_name, start_time, ctr, len(img_urls))
-                except IOError as e:
-                    print(e)
+            except IOError as e:
+                print("Error loading an image for this comic. It's likely a problem with the website's copy, so I'll skip it")
+                return []
+        print("Got everything I needed, saving your file...")
         return images
 
     def create_pdf(self, dir):
@@ -78,13 +65,11 @@ class ChapterMaker():
         images = self.get_images()
         if len(images):
             images[0].save(dir, "PDF", resolution=100.0,
-                        save_all=True, append_images=images[1:])
+                           save_all=True, append_images=images[1:])
+            print(f"Saved {self.chap_name} : {dir}", end="\n")
         else:
             print(f"Didn't find any images for {self.chap_name}")
         del images
-
-    
-
 
 
 # for debugging purposes
