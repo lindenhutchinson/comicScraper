@@ -5,12 +5,13 @@ from utils import get_absolute_path_to, ensure_directory_exists
 
 
 class ChapterController():
-    def __init__(self, save_dir, base_url, search_url):
+    def __init__(self, save_dir):
+        ensure_directory_exists('.', save_dir)
         self.save_dir = get_absolute_path_to(save_dir)
-        self.search = ChapterSearcher(base_url, search_url)
 
     def search_comics(self, search):
-        results = self.search.run(search)
+        searcher = ChapterSearcher()
+        results = searcher.run(search)
         options = [f"{i}: {c['title']}" for i, c in enumerate(results)]
         return (options, results)
 
@@ -28,6 +29,24 @@ class ChapterController():
         cd = ChaptersDownloader(comic['url'], comic['title'])
         cd.download_some(self.save_dir, chap_urls)
 
+    def present_options(self, options):
+        choice = -1
+        while(not(0 <= choice <= len(options))):
+            try:
+                prompt = "\n".join(
+                    [f"{i} - {opt}" for i, opt in enumerate(options)])
+                choice = int(input(prompt))
+                if not (0 <= choice <= len(options)):
+                    print(
+                        f"Sorry, I couldn't understand that input, try entering a number between 0 or a {len(options)}")
+                    choice = -1
+                    continue
+            except ValueError:
+                print("You need to enter a number!")
+                continue
+
+        return choice
+
     def get_user_input(self):
         go = True
         while go:
@@ -40,18 +59,11 @@ class ChapterController():
                 print("Sorry, I didn't find any results for that search")
                 go = False
                 continue
-            continue_downloading = -1
-            while(not(0<=continue_downloading<= 1)):
-                try:
-                    continue_downloading = int(
-                        input("0: Search for a different comic\n1: Download a comic from the list\n:"))
-                    if not (0 <= continue_downloading <= 1):
-                        print("Sorry, I couldn't understand that input, try entering a 0 or a 1")
-                        continue_downloading = -1
-                        continue
-                except ValueError:
-                    print("You need to enter a number!")
-                    continue
+
+            continue_downloading = self.present_options([
+                "Search for a different comic",
+                "Download a comic from the list"
+            ])
 
             if continue_downloading:
                 try:
@@ -67,18 +79,43 @@ class ChapterController():
                     print("Couldn't find a comic with that ID")
                     go = False
                     continue
-
-                self.download_all_issues(comic)
+                
+                download_all = self.present_options([
+                    'Choose chapters to download',
+                    'Download all issues'
+                ])
+                if download_all:
+                    self.download_all_issues(comic)
+                else:
+                    options, chap_urls = self.get_chapters(comic)
+                    print("\n".join(options))
+                    d_chaps_input = input("Enter the chapter ID's for those you would like to download, separated by a comma")
+                    d_chaps = d_chaps_input.split(',')
+                    print("Choose an issue to download")
 
             go = False
 
         self.get_user_input()
 
+'''
+TODO: CHAPTER GUI
+- input for chapter search
+- display results from chapter search
+- select comic from chapter search
+- display selected comic chapters
+- select chapters to download
+- input for save directory (default comics)
+- use constants for BASE_URL and SEARCH_URL
+- download chapters
+- merging chapters option added eventually
 
+
+
+
+'''
 if __name__ == "__main__":
-    base_url = 'https://wallcomic.com/comic/'
-    search_url = 'https://wallcomic.com/ajax/search'
+    # base_url = 'https://wallcomic.com/comic/'
+    # search_url = 'https://wallcomic.com/ajax/search'
     save_dir = "comics"
-    ensure_directory_exists('.', 'comics')
-    cc = ChapterController(save_dir, base_url, search_url)
+    cc = ChapterController(save_dir)
     cc.get_user_input()
