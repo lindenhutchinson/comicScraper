@@ -18,7 +18,9 @@ def get_sorted_arr_from_dict(data):
 def get_absolute_path_to(path):
     return os.path.join(os.getcwd(), path)
 
-
+def reverse_dict(data): 
+    return dict(reversed(list(data.items())))
+    
 def fix_directory_string(string):
     fixes = {
         ' ': '_',
@@ -29,6 +31,7 @@ def fix_directory_string(string):
         '"': '',
         "/": '',
         "\\": '',
+        "#":"",
     }
     safe_name = string.strip()
     for char, fix in fixes.items():

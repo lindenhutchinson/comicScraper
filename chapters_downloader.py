@@ -53,9 +53,10 @@ class ChaptersDownloader():
                 if href not in chap_urls:
                     chap_name = chap.get_text()
                     chap_urls.update({chap_name: href+'/all'})
-
+        
         print(f"I found {len(list(chap_urls.items()))} chapters")
-        return dict(reversed(list(chap_urls.items()))) #reverse the chapter list as it is listed from most recently released on the website
+        return(chap_urls)
+        # return dict(reversed(list(chap_urls.items()))) #reverse the chapter list as it is listed from most recently released on the website
 
     def download_all(self, directory):
         """
@@ -66,9 +67,9 @@ class ChaptersDownloader():
     def download_some(self, directory, chap_urls):
         dir = ensure_directory_exists(directory, self.title)
 
-        for chap_name, url in chap_urls.items(): 
-            cm = ChapterMaker(chap_name, url)
-            chap_name = fix_directory_string(chap_name)
+        for chap in chap_urls: 
+            cm = ChapterMaker(chap['title'], chap['href'])
+            chap_name = fix_directory_string(chap['title'])
             path = f"{dir}\\{chap_name}"
             cm.create_pdf(f"{path}.pdf")
 

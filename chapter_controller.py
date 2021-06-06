@@ -12,22 +12,25 @@ class ChapterController():
     def search_comics(self, search):
         searcher = ChapterSearcher()
         results = searcher.run(search)
-        options = [f"{i}: {c['title']}" for i, c in enumerate(results)]
-        return (options, results)
+        # options = [f"{i}: {c['title']}" for i, c in enumerate(results)]
+        return results[:100] 
+        #limit results to 100 items as having too many items can crash the GUI and there's no real need for it
 
     def get_chapters(self, comic):
         cd = ChaptersDownloader(comic['url'], comic['title'])
-        chap_urls = cd.get_chapter_urls()
-        options = [f"{i}: {c['title']}" for i, c in enumerate(chap_urls)]
-        return (options, chap_urls)
+        results = cd.get_chapter_urls()
+        results = [{"title":title, "href":href} for title, href in results.items()]
+        # options = [f"{i}: {c['title']}" for i, c in enumerate(chap_urls)]
+        return results
 
     def download_all_issues(self, comic):
         cd = ChaptersDownloader(comic['url'], comic['title'])
         cd.download_all(self.save_dir)
 
-    def download_some_issues(self, chap_urls):
+    def download_some_issues(self, comic, chap_urls):
         cd = ChaptersDownloader(comic['url'], comic['title'])
         cd.download_some(self.save_dir, chap_urls)
+        print("finished downloading")
 
     def present_options(self, options):
         choice = -1
@@ -99,13 +102,12 @@ class ChapterController():
 
 '''
 TODO: CHAPTER GUI
-- input for chapter search
-- display results from chapter search
-- select comic from chapter search
-- display selected comic chapters
+- input for chapter search (done)
+- display results from chapter search (done)
+- select comic from chapter search (done)
+- display selected comic chapters (done)
 - select chapters to download
 - input for save directory (default comics)
-- use constants for BASE_URL and SEARCH_URL
 - download chapters
 - merging chapters option added eventually
 

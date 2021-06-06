@@ -2,11 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 
 
-class ScrollableFrame(ttk.Frame):
-    def __init__(self, container, *args, **kwargs):
+class ComicsFrame(ttk.Frame):
+    def __init__(self, container, parent, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
-        self.options = []
-        self.selected_option = tk.StringVar(value=-1)
+        self.parent = parent
+        self.create_scrollable()
+        self.create_variables()
+
+    def create_scrollable(self):
         canvas = tk.Canvas(self, bg="white")
         scrollbar = ttk.Scrollbar(
             self, orient="vertical", command=canvas.yview)
@@ -25,6 +28,10 @@ class ScrollableFrame(ttk.Frame):
         canvas.grid(row=10, column=10)
         scrollbar.grid(row=10, column=10, sticky="NSE")
 
+    def create_variables(self):
+        self.options = []
+        self.selected_option = tk.IntVar(value=-1)
+
     def remove_options(self):
         for btn in self.options:
             btn.grid_forget()
@@ -39,10 +46,19 @@ class ScrollableFrame(ttk.Frame):
         self.options_container.grid(sticky="N")
 
         for res in results:
-            btn = tk.Radiobutton(self.options_container, text=res['title'],
-                                 variable=self.selected_option, value=res['url'], highlightbackground="yellow", activebackground="lightgrey", bg="white")
+            btn = tk.Radiobutton(
+                self.options_container, 
+                command=self.set_selected_option,
+                text=res['title'],
+                variable=self.selected_option, 
+                value=results.index(res), 
+                activebackground="lightgrey", 
+                bg="white"
+            )
             self.options.append(btn)
             btn.grid(sticky="w")
 
-    def get_selected_option(self):
-        return self.selected_option.get()
+    def set_selected_option(self):
+        self.parent.selected_comic.set(self.selected_option.get())
+        self.parent.selected_comic_name.set(self.parent.search_results[self.selected_option.get()]['title'])
+        # return self.selected_option.get()
