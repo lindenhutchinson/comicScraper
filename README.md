@@ -1,12 +1,14 @@
 # A Comic Web Scraper
 
-A collection of python scripts with the goal of downloading comics as pdfs
+A web scrape connected to a Tkinter GUI for finding and downloading comics.
 
+dist/gui.exe has a "working" version of the app
+
+## Gui
+> A Tkinter based GUI, which allows a user to access ChapterController to perform the web scraping and comic download
 
 ## ChapterController
-Run this to get started downloading comics.
 > gets the user input and controls ChapterSearcher and ChaptersDownloader
-
 
 ## ChapterSearcher
 > uses the website api to search for a comic and returns the list of results

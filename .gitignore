@@ -3,3 +3,5 @@ comics/
 test/
 .vscode/
 bash.exe.stackdump
+build
+*.spec
