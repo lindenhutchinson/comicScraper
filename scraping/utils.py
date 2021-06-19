@@ -7,6 +7,10 @@ def clear():
     os.system('cls')
 
 
+def strike_text(text):
+    return ''.join([u'{}{}'.format(c, '\u0336' if c != text[-1] else '') for c in text])
+    
+
 def get_page_soup(page_url):
     resp = requests.get(page_url)
     return BeautifulSoup(str(resp.content), "lxml")

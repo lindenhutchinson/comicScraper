@@ -7,7 +7,7 @@ class RequestGetter():
     def runner(url_list):
         threads= []
         completed = {}
-        with ThreadPoolExecutor(max_workers=50) as executor:
+        with ThreadPoolExecutor(max_workers=30) as executor:
             for i, url in enumerate(url_list):
                 threads.append(executor.submit(RequestGetter.get_response, i, url))
                 

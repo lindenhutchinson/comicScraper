@@ -30,7 +30,7 @@ class ChapterController():
 
     def download_some_issues(self, comic, chap_urls):
         cd = ChaptersDownloader(comic['url'], comic['title'])
-        cd.download_some(self.save_dir, chap_urls)
+        return cd.download_some(self.save_dir, chap_urls)
         if self.verbose:
             print("finished downloading")
 

@@ -73,9 +73,12 @@ class ChapterMaker():
             del images
             if self.verbose:
                 print(f"Saved {self.chap_name} : {dir}", end="\n")
+            return True
         else:
             if self.verbose:
                 print(f"Didn't find any images for {self.chap_name}")
+            return False
+
 
 
 # for debugging purposes

@@ -57,8 +57,7 @@ class ChaptersDownloader():
         if self.verbose:
             print(f"I found {len(list(chap_urls.items()))} chapters")
         return reverse_dict(chap_urls)
-        # return(chap_urls)
-        # return dict(reversed(list(chap_urls.items()))) #reverse the chapter list as it is listed from most recently released on the website
+        # reverse the chapter list as it is listed from most recently released on the website but we want in order of release
 
     def download_all(self, directory):
         """
@@ -68,12 +67,16 @@ class ChaptersDownloader():
 
     def download_some(self, directory, chap_urls):
         dir = ensure_directory_exists(directory, self.title)
-
+        broken_chapters = []
         for chap in chap_urls: 
             cm = ChapterMaker(chap['title'], chap['href'], self.verbose)
             chap_name = fix_directory_string(chap['title'])
             path = f"{dir}\\{chap_name}"
-            cm.create_pdf(f"{path}.pdf")
+            res = cm.create_pdf(f"{path}.pdf")
+            if not res:
+                broken_chapters.append(chap['title'])
+
+        return broken_chapters
 
 
 if __name__ == "__main__":

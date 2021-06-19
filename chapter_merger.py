@@ -1,7 +1,7 @@
 from PyPDF2 import PdfFileMerger
 import os
-from utils import clear
-
+from scraping.utils import clear
+import natsort
 
 def merge_pdfs(in_dir, out_file, max=0):
     '''
@@ -11,33 +11,24 @@ def merge_pdfs(in_dir, out_file, max=0):
         max<int>: (optional) the total number of pdf files to be merged
     '''
     merger = PdfFileMerger()
-    pdfs = os.listdir(in_dir)
-    prev = pdfs[0]
+    pdfs = natsort.natsorted(os.listdir(in_dir))
+
     file_names = []
     # create the correctly ordered list of files
     for i, pdf in enumerate(pdfs):
-        if i == max and max > 0:
+        if  max > 0 and i == max:
             break
-        # .5 chapters are listed before their numbered chapter, but they should be placed after while merging
-        # so check if the previous chapter was a .5 chapter
-        # if it was, remove it, add the numbered chapter first,
-        # then add the .5 chapter back so that the order remains accurate
-        if '.5.pdf' in prev:
-            file_names.pop()
-            file_names.append(in_dir+pdf)
-            file_names.append(in_dir+prev)
-        else:
-            file_names.append(in_dir+pdf)
 
-        prev = pdf
-
-    for i, fname in enumerate(file_names):
-        merger.append(fname)
-
-        dot_ctr = '.' * round(10*i/len(file_names))
         clear()
-        print(f"working{dot_ctr}")
+        print(f"Merging - {round(100*i/len(pdfs), 1)}%")
+        merger.append(in_dir+pdf)
 
     print("saving merged file (this can take some time)")
     merger.write(out_file)
     merger.close()
+
+
+if __name__ == "__main__":
+    in_dir = "comics/Invincible_(2003)/"
+    out_file = "Invincible_TPB.pdf"
+    merge_pdfs(in_dir, out_file)
